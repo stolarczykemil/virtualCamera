@@ -15,6 +15,8 @@ def clip_edge(v1, v2):
 def project_vertices(vertices, width, height, fov):
     x_proj = vertices[:, 0] / vertices[:, 2]
     y_proj = vertices[:, 1] / vertices[:, 2]
+    aspect_ratio = width / height
+    x_proj = x_proj / aspect_ratio
     fov_scale = 1.0 / np.tan(np.radians(fov) / 2)
     x_screen = x_proj  * fov_scale * (width / 2) + width / 2
     y_screen = -y_proj * fov_scale * (height / 2) + height / 2
@@ -76,11 +78,6 @@ def process_key(scene_matrix, key, mode, fov):
             transform = get_translation_matrix(0, -speed, 0)
         elif key == pygame.K_e:
             transform = get_translation_matrix(0, speed, 0)
-
-        elif key == pygame.K_UP:
-            fov = max(10, fov - zoom_speed)
-        elif key == pygame.K_DOWN:
-            fov = min(170, fov + zoom_speed)
     else:
         if key == pygame.K_w:
             transform = get_rotation_x_matrix(rot_speed)
@@ -94,5 +91,9 @@ def process_key(scene_matrix, key, mode, fov):
             transform = get_rotation_z_matrix(-rot_speed)
         elif key == pygame.K_e:
             transform = get_rotation_z_matrix(rot_speed)
+    if key == pygame.K_UP:
+        fov = max(10, fov - zoom_speed)
+    elif key == pygame.K_DOWN:
+        fov = min(170, fov + zoom_speed)
     new_scene_matrix = transform @ scene_matrix
     return new_scene_matrix, fov

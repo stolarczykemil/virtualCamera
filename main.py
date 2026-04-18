@@ -15,26 +15,28 @@ def main():
     mode = False
     scene_matrix = np.eye(4)
     running = True
+    clock = pygame.time.Clock()
     while running:
-        event = pygame.event.wait()
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LCTRL:
-                mode = not mode
-            scene_matrix, fov = process_key(scene_matrix, event.key, mode, fov)
-            transformed_vertices = vertices @ scene_matrix.T
-            screen.fill((0, 0, 0))
-            for edge in edges:
-                clipped = clip_edge(transformed_vertices[edge[0]], transformed_vertices[edge[1]])
-                if clipped is not None:
-                    cv1, cv2 = clipped
-                    points_to_project = np.array([cv1, cv2])
-                    projected = project_vertices(points_to_project, width, height, fov)
-                    p1 = projected[0]
-                    p2 = projected[1]
-                    pygame.draw.line(screen, (255, 255, 255), p1, p2, 1)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LCTRL:
+                    mode = not mode
+                scene_matrix, fov = process_key(scene_matrix, event.key, mode, fov)
+        transformed_vertices = vertices @ scene_matrix.T
+        screen.fill((0, 0, 0))
+        for edge in edges:
+            clipped = clip_edge(transformed_vertices[edge[0]], transformed_vertices[edge[1]])
+            if clipped is not None:
+                cv1, cv2 = clipped
+                points_to_project = np.array([cv1, cv2])
+                projected = project_vertices(points_to_project, width, height, fov)
+                p1 = projected[0]
+                p2 = projected[1]
+                pygame.draw.line(screen, (255, 255, 255), p1, p2, 1)
         pygame.display.flip()
+        clock.tick(60)
     pygame.quit()
 
 if __name__ == "__main__":
